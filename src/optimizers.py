@@ -4,7 +4,7 @@ import numpy as np
 # Gradient Descent
 #--------------------------------------------------------------------
 
-def gradient_descent_optimizer(grad,init,alpha=0.01,iterations=1000):
+def gradient_descent_optimizer(grad,init,alpha=0.01,iterations=1000,clip_value=10):
     """
     grad:gradient function
     init:initial point
@@ -16,7 +16,9 @@ def gradient_descent_optimizer(grad,init,alpha=0.01,iterations=1000):
     x=np.array(init,dtype=float)
     trajectory=[x.copy()]
     for i in range(iterations):
-        gradient= grad(*x) if isinstance(x,np.ndarray) and len(x)==2 else grad(x)
+        gradient = grad(*x) if np.ndim(x) > 0 else grad(x)
+        #gradient clipping to prevent exploding gradient
+        gradient = np.clip(gradient, -clip_value, clip_value)
         #position update
         x=x-(alpha*gradient)
         trajectory.append(x.copy())
@@ -42,7 +44,7 @@ def momentum_optimizer(grad,init,alpha=0.01,beta=0.9,iterations=1000,clip_value=
     trajectory=[x.copy()]
     
     for i in range(iterations):
-        gradient= grad(*x) if isinstance(x,np.ndarray) and len(x)==2 else grad(x)
+        gradient = grad(*x) if np.ndim(x) > 0 else grad(x)
         #gradient clipping to prevent exploding gradient
         gradient = np.clip(gradient, -clip_value, clip_value)
         #velocity update
@@ -55,7 +57,7 @@ def momentum_optimizer(grad,init,alpha=0.01,beta=0.9,iterations=1000,clip_value=
 #----------------------------------------------------------------------
 # RMSProp Optimizer(Root Mean Square Propagation)-Adaptive Learning rate
 #---------------------------------------------------------------------
-def rmsprop_optimizer(grad,init,alpha=0.01,beta=0.9,eps=1e-8,iterations=1000):
+def rmsprop_optimizer(grad,init,alpha=0.01,beta=0.9,eps=1e-8,iterations=1000,clip_value=10):
     """
     grad:gradient function
     init:initial point
@@ -73,7 +75,9 @@ def rmsprop_optimizer(grad,init,alpha=0.01,beta=0.9,eps=1e-8,iterations=1000):
     trajectory=[x.copy()]
 
     for i in range(iterations):
-        gradient=grad(*x) if isinstance(x,np.ndarray) and len(x)==2 else grad(x)
+        gradient = grad(*x) if np.ndim(x) > 0 else grad(x)
+        #gradient clipping to prevent exploding gradient
+        gradient = np.clip(gradient, -clip_value, clip_value)
         s=beta*s+(1-beta)*(gradient**2)        # Update running average of squared gradients
         x=x-alpha*gradient/(np.sqrt(s)+eps)    # parameter update
         trajectory.append(x.copy())
@@ -87,7 +91,7 @@ def rmsprop_optimizer(grad,init,alpha=0.01,beta=0.9,eps=1e-8,iterations=1000):
 #  Combines momentum (first moment) and adaptive learning rates (second moment).
 #--------------------------------------------------------------
 
-def adam_optimizer(grad,init,alpha=0.01,iterations=1000,beta1=0.9,beta2=0.999,eps=1e-8):
+def adam_optimizer(grad,init,alpha=0.01,iterations=1000,beta1=0.9,beta2=0.999,eps=1e-8,clip_value=10):
     """
     grad:gradient function
     init:initial point
@@ -106,7 +110,9 @@ def adam_optimizer(grad,init,alpha=0.01,iterations=1000,beta1=0.9,beta2=0.999,ep
     v=np.zeros_like(x)
     trajectory=[x.copy()]
     for t in range(1,iterations+1):
-        gradient=grad(*x) if isinstance(x,np.ndarray) and len(x)==2 else grad(x)
+        gradient = grad(*x) if np.ndim(x) > 0 else grad(x)
+        #gradient clipping to prevent exploding gradient
+        gradient = np.clip(gradient, -clip_value, clip_value)
         m=beta1*m+(1-beta1)*gradient           #first moment
         v=beta2*v+(1-beta2)*(gradient**2)      #second moment
         m_hat=m/(1-beta1**t)     #bias correction for first moment

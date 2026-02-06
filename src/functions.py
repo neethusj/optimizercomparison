@@ -33,7 +33,7 @@ Global minimum at (1,1)
 """
 
 def rosenbrock(x,y):
-       return (1-x)**2+100(y-x**2)**2
+       return (1-x)**2+100*(y-x**2)**2
 def gradient_rosenbrock(x,y):
         dx=-2*(1-x)-400*x*(y-x**2)
         dy=200*(y-x**2)
